@@ -7,7 +7,7 @@ from PIL import Image, ImageFilter
 def main():
     imageWidth = 408
     imageHeight = 300
-    image = Image.open("edgeDetectionCases4.jpg")
+    image = Image.open("edgeDetectionCases11.jpg")
     image = pixelMethods(image, imageWidth, imageHeight)
     imageData = assignNumbers(image)
     imageFragments = backToImages(imageData)
@@ -49,7 +49,8 @@ def assignNumbers(image):
                 count += 1
                 imageValues[x][y] = count
                 subPartition, imageValues = floodFill(imageValues, x, y, count)
-                partitions.append(subPartition)
+                if len(subPartition) > 20:
+                    partitions.append(subPartition)
     return partitions
                 
 def floodFill(imageValues, Startx, Starty, count):
@@ -69,10 +70,7 @@ def backToImages(imageData):
     imageDimensions = []
     for image in imageData:
         #This function will find the dimensions of each image fragment
-        minRow = None
-        maxRow = None
-        minCol = None
-        maxCol = None
+        minRow, maxRow, minCol, maxCol = None, None, None, None
         for (x,y) in image:
             if minRow == None or maxRow == None or minCol == None or maxCol == None:
                 minRow = x
@@ -89,12 +87,24 @@ def backToImages(imageData):
                 if y > maxCol:
                     maxCol = y
         imageDimensions.append((maxRow-minRow,maxCol-minCol,minRow,minCol))
-    for newImage in imageDimensions:
+    newImages = []
+    for newImage in range(len(imageDimensions)):
         #This will create an image of the fragment
-        newImageHeight = newImage[0]
-        newImageWidth = newImage[1]
-        fragment = Image.new('RGB', (newImageWidth, newImageHeight), color=(255,255,255))
-        
+        newImageHeight = imageDimensions[newImage][0]
+        newImageWidth = imageDimensions[newImage][1]
+        fragment = Image.new('RGB', (newImageHeight+10, newImageWidth+10), color=(255,255,255))
+        for (x,y) in imageData[newImage]:
+            print(x,y)
+            x = x-imageDimensions[newImage][2]
+            y = y-imageDimensions[newImage][3]
+            print(x,y,fragment.size,imageDimensions)
+            fragment.putpixel((x,y),(115,109,198))
+            #fragment.show()
+        newImages.append(fragment)
+        fragment.show()
+
+    #print data onto newImages
+    return newImages
 
 
 
