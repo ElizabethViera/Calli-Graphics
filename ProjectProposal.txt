@@ -1,0 +1,20 @@
+Project Proposal
+Problem and Project Description:
+    Training neural nets requires a heavy amount of backend setup, hours of tagging data, and writing on a whiteboard. My term project will streamline this process, allowing users to photograph their own writing on whiteboards and providing an interface for them to tag each character (partitioning the images) to build their own neural net. This will result in a downloadable file which they can upload with a photo of their handwriting to output in a text (or TeX, if time permits) file. 
+
+Procedure:
+    The program will ask the user to accumulate a zip file containing images (in order) of text they have written on whiteboards. The program will then separate each image into a batch of characters, displaying those characters to the user. They will ask them to select each character from the image. The program will run feature detection on the character, and then retain the vector data and the image in a file of other vectors/images of the same character. After tagging all characters from all images, the user will be given a trained neural net, based off of their data. They will be able to upload this and a new picture of something they wrote and the program will predict what they wrote, in text file.
+
+Modules required:
+    Python Imaging Library (PILLOW) (image processing)
+    TKinter (front end)
+    Numpy (math)
+    Adobe Illustrator (Graphics)
+
+Competitive Analysis:
+    MNist: This is a comprehensive digit recognizer. It takes in grayscale images and outputs numerical data. 
+           Pros: Works really accurately. Cons: Have to convert all images to grayscale. Only works on numbers.
+    DeTexify: This allows you to draw characters in a box, and it predicts which character you drew, and gives
+              the LaTeX code for that symbol (example: '\epsilon' will create a lowercase epsilon)
+              Pros: Fancy algorithms, lots of training data. Cons: A single letter at a time. 
+

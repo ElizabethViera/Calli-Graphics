@@ -1,0 +1,45 @@
+Time Sheet
+Prior to Assignment of Project: 30(?) hours invested
+After Assignment of Project:
+
+WEEK 1: THURSDAY APRIL 6 - THURSDAY APRIL 13
+Thursday, April 6: 
+12:30-2:00, created function to print images to squares; created a bug (printing out of range of image???)
+.
+Sunday, April 9:
+1:30-3:30 Create new data for project, run data through code while attempting to debug. Try to figure out what 
+        it IS printing.
+.
+Tuesday, April 11:
+1:30-3:00, debugged existing code (particularly, image coordinates printing onto new images) (helped by TA (Tara))
+6:00-8:00, planned direction for next part of project, spoke with TA (Eddie) about classes and passing data
+           between files
+.
+Thursday, April 13: 
+12:30-3:30, Resized Images; Created file directory; Sent image fragments to files (with help from TA (Sterling)), researched Machine Learning
+
+WEEK 2: FRIDAY APRIL 14 - FRIDAY APRIL 21
+Friday, April 14:
+9:30 - 10:30, created to-do list for project, outlined story board plan
+10:40 - 10:50, meeting with Xinhe to discuss project logistics
+6:30 - 9:30, storyboarding part 1, created some graphics
+.
+Saturday, April 15:
+5:00-6:15: Finished Storyboarding
+.
+Sunday, April 16:
+1:00-1:20: Learned about front-end integration, decided to use TKinter instead of CSS/Web Integration.
+.
+Monday, April 17:
+10:30-12:20: Downloaded, experimented with Numpy. Wrote short tech demo.
+2:00-4:20: Read about Machine Learning---Computing Gradients, Squared Error, etc.
+5:10-6:10: Work on downloading SciPy and SciKit-Learn.
+7:30-8:30: Finished downloading Sci-KitLearn
+.
+Tuesday, April 18:
+11:50-12:30: Organize Files and whatnot into TP1 Deliverable, met with Xinhe about TP1 deliverable. 
+             Reformulate project without SciKitLearn. (Histogram Approach)
+4:45-7:00: Developed front end in tkinter
+.
+Wednesday, April 19:
+10:30-11:15:Worked on front end interface
