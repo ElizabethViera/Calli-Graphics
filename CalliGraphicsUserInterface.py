@@ -10,7 +10,7 @@ from tkinter import *
 from tkinter.filedialog import askopenfilenames 
 from CalliGraphicsImageTagging import *
 from CalliGraphicsImageDetection import *
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageTk
 import os, os.path
 
 ####################################
@@ -32,6 +32,7 @@ def init(data):
     data.untaggedImages = 0
     data.readyToGo = False
     data.untaggedImagesList = []
+    data.predictionFile = ""
 
 
 def redrawAll(canvas, data):
@@ -100,7 +101,7 @@ def redrawAllDirection(canvas,data):
             a textfile using an automated process. The task left to you is to write out some data and tag it! 
             I have created the backend infrastructure that will process your images and data, to cut 
             the conceptually difficult parts out of the process. In fact, you could probably pay your eleven year-
-            old cousin to do it for you. 
+            old cousin to do it for you.
 
             Disclaimer: Gathering and tagging data is still a long process, and will require you to write hundreds of
             sentences on a whiteboard. Also, CalliGraphics does not condone child labor."""
@@ -115,8 +116,10 @@ def redrawAllUpload(canvas,data):
     borderBottom = 470
     borderRight = 945
     buttonOffsetDown = 150
-    text = """First, write out the first 50 digits of Pi in one image.
-            For reference, these are:
+    text = """First, write out the first 50 digits of Pi in one image. Make sure that each number is
+            disjoint---They don't touch each other! Also, make sure the individual numbers are entirely 
+            connected, so each part of the number is connected to each other part of that number. 
+            For reference, the first 50 digits of Pi are:
             3.1415926535897932384626433832795028841971693993751 
             Upload your photo here:"""
     canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
@@ -141,7 +144,20 @@ def redrawAllTag(canvas,data):
     canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
 
 def redrawAllDone(canvas,data):
-    pass
+    borderTop = 30
+    borderLeft = 55
+    borderBottom = 470
+    borderRight = 945
+    buttonOffsetDown = 150
+    resultOffset = 30
+    text = "Congrats! You're all done tagging your data! Upload a photo of numbers to convert it to text!"
+    resultText = "Your result: " + data.predictionFile
+    canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
+    canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
+    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
+    if data.predictionFile != "":
+        canvas.create_text(data.width//2,data.height//2+resultOffset,anchor=S,text=resultText)
+    canvas.create_image(data.width//2,data.height//2+.5*buttonOffsetDown, image=data.uploadButtonImage)
 
 
 ##############################################
@@ -188,7 +204,7 @@ def mousePressedUpload(event,data):
 
 def loadFilesIntoData(data):
     for fileNumber in range(data.untaggedData):
-        data.untaggedImagesList.append(PhotoImage("characterData/untaggedData/%d.jpg"%fileNumber))
+        data.untaggedImagesList.append(ImageTk.PhotoImage(file="characterData/untaggedData/%d.jpg"%fileNumber))
 
 def openFiles():
     unparsedImage = askopenfilenames()
@@ -202,8 +218,31 @@ def countFilesInUntagged(data):
 def mousePressedTag(event,data):
     pass
 
+def predictFile(data):
+    predictImage = askopenfilenames()
+    assignedData = imagePredict(predictImage[0]) #list of vectors
+    predictionFile = []
+    for imageData in assignedData:
+        distance = 700
+        tag = None
+        for instance in trainingVectors.instances:
+            if distanceFunction(imageData, instance.vec) < distance:
+                distance = distanceFunction(imageData, instance.vec)
+                tag = instance.tag
+        predictionFile.append(tag)
+        print(predictionFile)
+    for number in predictionFile:
+        data.predictionFile += number
+
 def mousePressedDone(event,data):
-    pass
+    uploadButtonTop = 310
+    uploadButtonBottom = 335
+    uploadButtonLeft = 405
+    uploadButtonRight = 600
+    if event.y > uploadButtonTop and event.y < uploadButtonBottom:
+        if event.x > uploadButtonLeft and event.x < uploadButtonRight:
+            predictFile(data)
+            
     
 
 ##############################################
@@ -287,8 +326,7 @@ class trainingVectors(object):
         self.tag = tag
         trainingVectors.instances.append(self)
     def __repr__(self):
-        return ("tag = " + str(self.tag) + str(vec))
+        return (str(self.tag) + " " + str(self.vec))
 
 run(1000, 500)
 
-print(trainingVectors.instances)

@@ -1,6 +1,7 @@
 #Elizabeth Viera, using Pillow
 from __future__ import print_function
 from PIL import Image, ImageFilter
+from CalliGraphicsImageTagging import *
 
 def imageDetectionAndParsing(string): 
     imageWidth = 408
@@ -11,7 +12,23 @@ def imageDetectionAndParsing(string):
     imageData = partitionCharacters(image)
     imageFragments = createNewCharacterImages(imageData)
     pushToFile(imageFragments)
-    
+
+def imagePredict(string):
+    imageWidth = 408
+    imageHeight = 300
+    imagePath = string
+    image = Image.open(string)
+    image = outlineMarks(image, imageWidth, imageHeight)
+    imageData = partitionCharacters(image)
+    imageFragments = createNewCharacterImages(imageData)
+    assignedData = assignVectors(imageFragments)
+    return assignedData
+
+def assignVectors(imageFragments): #takes in list of images
+    assignedVecs = []
+    for fragment in imageFragments:
+        assignedVecs.append(predictCharacter(fragment))
+    return assignedVecs
 
 def outlineMarks(image, imageWidth, imageHeight):
     def colorsAreVeryDifferent(color1,color2):

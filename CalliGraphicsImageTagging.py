@@ -6,37 +6,16 @@
 import numpy as np 
 from PIL import Image, ImageFilter
 
-def maxSelf():
-    Zero = [25,28]
-    One = [4,8,19,21,23]
-    Two = [2,31,36,41,44]
-    Three = [0,5,34,35,37,40,47,51,53]
-    Four = [1,12,27,50]
-    print("Zero to zero:", distanceFunction(25,28))
-    print("Three to Three:")
-    Threes = []
-    for i in range (len(Three)):
-        for j in range(i+1,len(Three)):
-            dist = distanceFunction(Three[i],Three[j])
-            Threes.append([dist,Three[i],Three[j]])
-    Threes = max(Threes)
-    print(Threes)
-    print ("Three to Other:")
-    ThreeOther = []
-    for i in range(len(Three)):
-        for j in range(53):
-            if j in Three: continue
-            else:
-                dist = distanceFunction(Three[i],j)
-                ThreeOther.append([dist,Three[i],j])
-    print (min(ThreeOther))
-
-
-def distanceFunction(vectorOne,vectorTwo): #ints
-    arrayOne = analyzeCharacter(vectorOne)
-    arrayTwo = analyzeCharacter(vectorTwo)
-    dist = np.linalg.norm(arrayOne-arrayTwo) #stackOverflowDistance
+def distanceFunction(vectorOne,vectorTwo): 
+    dist = np.linalg.norm(vectorOne-vectorTwo) #stackOverflowDistance
     return dist
+
+def predictCharacter(fragment):
+    imageToTag, comparisonImages = fragment, predictGetImages()
+    vectors = makeVectors(imageToTag,comparisonImages)
+    singleVector = flattenVector(vectors)
+    array = np.array(singleVector)
+    return array
 
 def analyzeCharacter(n):
     imageToTag, comparisonImages = getImages(n)
@@ -66,6 +45,17 @@ def makeVectors(imageToTag,comparisonImages):
             vectorMidLeft,vectorMidMid,vectorMidRight,
             vectorLowLeft,vectorLowMid,vectorLowRight]
     
+def predictGetImages():
+    leftHalf = Image.open("VectorImageComparisons/LeftHalf.png")
+    middleLineHorizontal = Image.open(
+                            "VectorImageComparisons/MiddleLineHorizontal.png")
+    middleLineVertical = Image.open(
+                            "VectorImageComparisons/MiddleLineVertical.png")
+    topHalf = Image.open("VectorImageComparisons/TopHalf.png")
+    topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
+    topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
+    return [leftHalf,middleLineHorizontal,middleLineVertical,
+                        topHalf,topLeftDiagonal,topRightDiagonal]
 
 def getImages(n):
     imageToTag = Image.open("CharacterData/untaggedData/%d.jpg" % n)
@@ -196,3 +186,33 @@ def compareLowRight(imageToTag,comparisonImages):
                     similarityPercent += 1
         comparisonVector.append(similarityPercent)
     return comparisonVector
+
+#####################################################
+#test function for ML callibration
+#####################################################
+
+def maxSelf():
+    Zero = [25,28]
+    One = [4,8,19,21,23]
+    Two = [2,31,36,41,44]
+    Three = [0,5,34,35,37,40,47,51,53]
+    Four = [1,12,27,50]
+    print("Zero to zero:", distanceFunction(25,28))
+    print("Three to Three:")
+    Threes = []
+    for i in range (len(Three)):
+        for j in range(i+1,len(Three)):
+            dist = distanceFunction(Three[i],Three[j])
+            Threes.append([dist,Three[i],Three[j]])
+    Threes = max(Threes)
+    print(Threes)
+    print ("Three to Other:")
+    ThreeOther = []
+    for i in range(len(Three)):
+        for j in range(53):
+            if j in Three: continue
+            else:
+                dist = distanceFunction(Three[i],j)
+                ThreeOther.append([dist,Three[i],j])
+    print (min(ThreeOther))
+

@@ -58,4 +58,12 @@ Sunday, April 22:
 3:45-4:00 Check-in with mentor, Xinhe
 .
 Tuesday, April 25:
-12:00- Office Hours, received help from TA Abhi to find dialogue box
+12:00-1:15 Office Hours, received help from TA Abhi to find dialogue box
+4:00-7:30 Attached all files to eachother. Functions now run centrally in CalliGraphicsUserInterface.
+10:00-1:15 Attached all files to eachother. Functions now run centrally in CalliGraphicsUserInterface.
+           Pushed results to github
+.
+Wednesday, April 26:
+10:00-12:30 Created predictive algorithms, working except with a bug
+1:15-1:30 Meetings with Xinhe to discuss TP2
+4:00-5:00 Fixed bug, finished details for TP2 submission
