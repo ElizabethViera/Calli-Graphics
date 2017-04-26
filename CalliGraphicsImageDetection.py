@@ -2,10 +2,11 @@
 from __future__ import print_function
 from PIL import Image, ImageFilter
 
-def main():
+def imageDetectionAndParsing(string): 
     imageWidth = 408
     imageHeight = 300
-    image = Image.open("edgeDetectionCases11.jpg")
+    imagePath = string
+    image = Image.open(string)
     image = outlineMarks(image, imageWidth, imageHeight)
     imageData = partitionCharacters(image)
     imageFragments = createNewCharacterImages(imageData)
@@ -21,7 +22,6 @@ def outlineMarks(image, imageWidth, imageHeight):
         return False
 
     image = image.resize((imageWidth, imageHeight), Image.BICUBIC) 
-    #image.show()
     maxPass = image.filter(ImageFilter.RankFilter(13,99)) #radius 13
     for x in range(image.size[0]):
         for y in range(image.size[1]):
@@ -31,8 +31,7 @@ def outlineMarks(image, imageWidth, imageHeight):
             if(colorsAreVeryDifferent(maxPassColor,currentColor)):
                 image.putpixel((x,y),(0,255,0)) #make pixel very green
             else: 
-                image.putpixel((x,y),(255,255,255))
-    image.show()        
+                image.putpixel((x,y),(255,255,255))    
     return image
 
 def partitionCharacters(image):
@@ -73,7 +72,8 @@ def createNewCharacterImages(imageData):
         #This function will find the dimensions of each image fragment
         minRow, maxRow, minCol, maxCol = None, None, None, None
         for (x,y) in image:
-            if minRow == None or maxRow == None or minCol == None or maxCol == None:
+            if (minRow == None or maxRow == None or 
+                minCol == None or maxCol == None):
                 minRow = x
                 maxRow = x
                 minCol = y
@@ -93,13 +93,19 @@ def createNewCharacterImages(imageData):
         #This will create an image of the fragment
         newImageHeight = imageDimensions[imageIndex][0]
         newImageWidth = imageDimensions[imageIndex][1]
-        imagePadding = 10
+        imagePadding = 1
         newImageSquare = max(newImageWidth,newImageHeight)+imagePadding
+        centerAmount, widthOrHeight = calculateCentering(newImageHeight,
+                                                         newImageWidth)
         fragment = Image.new('RGB', (newImageSquare, newImageSquare), 
                              color=(255,255,255))
         for (x,y) in imageData[imageIndex]:
-            x = x-imageDimensions[imageIndex][2]
-            y = y-imageDimensions[imageIndex][3]
+            if widthOrHeight == "Height":
+                x = x-imageDimensions[imageIndex][2] + centerAmount
+                y = y-imageDimensions[imageIndex][3]
+            else:
+                x = x-imageDimensions[imageIndex][2]
+                y = y-imageDimensions[imageIndex][3] + centerAmount
             fragment.putpixel((x,y),(115,109,198))
             #fragment.show()
         finalWidth = 32
@@ -109,8 +115,17 @@ def createNewCharacterImages(imageData):
         #fragment.show()
     return newImages
 
+def calculateCentering(Height,Width):
+    maxLength = max(Height,Width) 
+    centerAmount = abs(Height-Width)//2
+    if maxLength == Height:
+        return centerAmount, "Width"
+    else:
+        return centerAmount, "Height"
+
 def pushToFile(listOfImages):
     count = 0
     for image in listOfImages:    
-        image.save("characterData" + "\\" + "untaggedData" + "\\" + "%d.jpg" % count)
+        image.save("characterData" + "\\" + "untaggedData" 
+                    + "\\" + "%d.jpg" % count)
         count += 1

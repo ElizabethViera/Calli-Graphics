@@ -43,3 +43,19 @@ Tuesday, April 18:
 .
 Wednesday, April 19:
 10:30-11:15:Worked on front end interface
+7:30-9:00: More front end work
+.
+Thursday, April 20:
+5:00-7:00 Front End work
+.
+Friday, April 21:
+3:00-4:00 Front End work, also passing functions across pages
+.
+WEEK 2: SATURDAY APRIL 22 - SATURDAY APRIL 29
+.
+Sunday, April 22:
+11:30-3:00 Learning work, change how images rendered (centering, less padding)
+3:45-4:00 Check-in with mentor, Xinhe
+.
+Tuesday, April 25:
+12:00- Office Hours, received help from TA Abhi to find dialogue box
