@@ -265,6 +265,8 @@ def keyPressedTag(event,data):
         trainingVectors(thisVector,event.keysym)
         data.taggedImages += 1
     if data.taggedImages == data.untaggedData:
+        #delete all objects in folder
+        #"delete folder OS Python" - Xinhe
         data.mode = "Done!"
 
 def keyPressedDone(event,data):

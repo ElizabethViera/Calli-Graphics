@@ -2,6 +2,7 @@
 #Tagging Data
 #Stack Overflow cite: http://stackoverflow.com/questions/1401712/how-can-the-
 #euclidean-distance-be-calculated-with-numpy
+#PCA implemented with Smith, Lindsay J. 'A tutorial on Principal Components Analyses' 2002, PDF.
 
 import numpy as np 
 from PIL import Image, ImageFilter
@@ -54,8 +55,9 @@ def predictGetImages():
     topHalf = Image.open("VectorImageComparisons/TopHalf.png")
     topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
     topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
+    bottomBoxes = Image.open("VectorImageComparisons/LowerBoxes.png")
     return [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal]
+                        topHalf,topLeftDiagonal,topRightDiagonal,bottomBoxes]
 
 def getImages(n):
     imageToTag = Image.open("CharacterData/untaggedData/%d.jpg" % n)
@@ -67,8 +69,9 @@ def getImages(n):
     topHalf = Image.open("VectorImageComparisons/TopHalf.png")
     topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
     topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
+    bottomBoxes = Image.open("VectorImageComparisons/LowerBoxes.png")
     return imageToTag, [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal]
+                        topHalf,topLeftDiagonal,topRightDiagonal,bottomBoxes]
 
 def compareTopLeft(imageToTag,comparisonImages):
     comparisonPixels = 10
@@ -186,6 +189,105 @@ def compareLowRight(imageToTag,comparisonImages):
                     similarityPercent += 1
         comparisonVector.append(similarityPercent)
     return comparisonVector
+
+#####################################################
+#PCA Implementation
+#####################################################
+
+def PCAOfVectors(vectorList):
+    newDataSet = subtractArithmeticMean(vectorList)
+    return createCovarianceMatrix(newDataSet)
+
+def subtractArithmeticMean(vectorList):
+    numberOfVectors = len(vectorList)
+    if numberOfVectors != 0:
+        vectorScalar = 1/numberOfVectors
+    else:
+        vectorScalar = 0
+    vectorLength = vectorList[0].size
+    totalVector = [0 for entry in range(vectorLength)]
+    np.array(totalVector)
+    for vector in vectorList:
+        totalVector = totalVector + vector
+    arithmeticMean = totalVector*vectorScalar
+    adjustedVectorList = []
+    for vector in vectorList:
+        adjustedVector = vector-arithmeticMean
+        adjustedVectorList.append(adjustedVector)
+    return adjustedVectorList
+
+def createCovarianceMatrix(newDataSet):
+    numberOfVectors = len(newDataSet)
+    if numberOfVectors != 1:
+        covarianceScalar = 1/(numberOfVectors-1)
+    else: 
+        covarianceScalar = 0
+    vectorLength = newDataSet[0].size
+    covarianceMatrix = [[0 for col in range(vectorLength)] for row in range(vectorLength)]
+    for row in range(len(covarianceMatrix)):
+        for col in range(len(covarianceMatrix[0])):
+            totalSum = 0
+            for i in range(numberOfVectors):
+                totalSum += newDataSet[i][row]*newDataSet[i][col]
+            covarianceMatrix[row][col] = totalSum/numberOfVectors
+    covarianceMatrix = np.array(covarianceMatrix)
+    return covarianceMatrix*covarianceScalar
+
+def getEigenValuesOfCovariance(matrix):
+    #Power Iteration
+    #takes in nxn matrix
+    vectorDimension = len(matrix) #n
+    uVec = numpy.random.rand(vectorDimension)
+    for i in range(1,1000): 
+        uVec = matrix*uVec 
+        norm=np.linalg.norm(uVec, ord=1)
+        uVec = uVec/norm
+    return uVec
+
+###################################################
+#TestFunctions
+###################################################
+def PCATest():
+    print("Testing Arithmetic Mean. . . ")
+    a = [0,1,2,3,4]
+    b = [2,3,4,5,6]
+    c = [1,2,1,1,1]
+    d = [0,1,2,3,9]
+    testA = np.array(a)
+    testB = np.array(b)
+    testC = np.array(c)
+    testD = np.array(d)
+    listOfArrays = [testA, testB, testC, testD]
+    #Test from pdf, page 13:
+    e = [2.5,2.4]
+    f = [.5,.7]
+    g = [2.2,2.9]
+    h = [1.9,2.2]
+    i = [3.1,3.0]
+    j = [2.3,2.7]
+    k = [2,1.6]
+    l = [1,1.1]
+    m = [1.5,1.6]
+    n = [1.1,.9]
+    testE = np.array(e)
+    testF = np.array(f)
+    testG = np.array(g)
+    testH = np.array(h)
+    testI = np.array(i)
+    testJ = np.array(j)
+    testK = np.array(k)
+    testL = np.array(l)
+    testM = np.array(m)
+    testN = np.array(n)
+    listOfData = [testE,testF,testG,testH,testI,testJ,testK,testL,testM,testN]
+    print(subtractArithmeticMean(listOfData))
+    print(PCAOfVectors(listOfData))
+    print("Passed!")
+
+
+
+
+
 
 #####################################################
 #test function for ML callibration
