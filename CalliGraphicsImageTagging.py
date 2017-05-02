@@ -3,11 +3,14 @@
 #Stack Overflow cite: http://stackoverflow.com/questions/1401712/how-can-the-
 #euclidean-distance-be-calculated-with-numpy
 #PCA implemented with Smith, Lindsay J. 'A tutorial on Principal Components Analyses' 2002, PDF.
+#Methodology similar to Eigenfaces, as directed in https://en.wikipedia.org/wiki/Eigenface
 
 import numpy as np 
 from PIL import Image, ImageFilter
 
 def distanceFunction(vectorOne,vectorTwo): 
+    vectorOne = np.array(vectorOne)
+    vectorTwo = np.array(vectorTwo)
     dist = np.linalg.norm(vectorOne-vectorTwo) #stackOverflowDistance
     return dist
 
@@ -55,9 +58,8 @@ def predictGetImages():
     topHalf = Image.open("VectorImageComparisons/TopHalf.png")
     topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
     topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
-    bottomBoxes = Image.open("VectorImageComparisons/LowerBoxes.png")
     return [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal,bottomBoxes]
+                        topHalf,topLeftDiagonal,topRightDiagonal]
 
 def getImages(n):
     imageToTag = Image.open("CharacterData/untaggedData/%d.jpg" % n)
@@ -69,9 +71,8 @@ def getImages(n):
     topHalf = Image.open("VectorImageComparisons/TopHalf.png")
     topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
     topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
-    bottomBoxes = Image.open("VectorImageComparisons/LowerBoxes.png")
     return imageToTag, [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal,bottomBoxes]
+                        topHalf,topLeftDiagonal,topRightDiagonal]
 
 def compareTopLeft(imageToTag,comparisonImages):
     comparisonPixels = 10
@@ -191,12 +192,28 @@ def compareLowRight(imageToTag,comparisonImages):
     return comparisonVector
 
 #####################################################
+#Basically EigenFaces
+#####################################################
+
+
+#####################################################
 #PCA Implementation
 #####################################################
 
 def PCAOfVectors(vectorList):
-    newDataSet = subtractArithmeticMean(vectorList)
-    return createCovarianceMatrix(newDataSet)
+    newDataSet, arithmeticMean = subtractArithmeticMean(vectorList)
+    covarianceMatrix = createCovarianceMatrix(newDataSet)
+    eigenVectors = findEigenVectors(covarianceMatrix)
+    return eigenVectors, arithmeticMean
+
+def findEigenVectors(matrix):
+    eigenVectors = []
+    for eigenVector in range(len(matrix)):
+        eigenVector = getEigenValuesOfCovariance(matrix,eigenVectors)
+        eigenVectors.append(eigenVector)
+        matrix -= np.dot(np.dot(matrix,eigenVector),eigenVector)
+    return eigenVectors
+
 
 def subtractArithmeticMean(vectorList):
     numberOfVectors = len(vectorList)
@@ -206,15 +223,16 @@ def subtractArithmeticMean(vectorList):
         vectorScalar = 0
     vectorLength = vectorList[0].size
     totalVector = [0 for entry in range(vectorLength)]
-    np.array(totalVector)
+    totalVector = np.array(totalVector)
     for vector in vectorList:
         totalVector = totalVector + vector
     arithmeticMean = totalVector*vectorScalar
+    arithmeticMean = np.array(arithmeticMean)
     adjustedVectorList = []
     for vector in vectorList:
         adjustedVector = vector-arithmeticMean
         adjustedVectorList.append(adjustedVector)
-    return adjustedVectorList
+    return adjustedVectorList, arithmeticMean
 
 def createCovarianceMatrix(newDataSet):
     numberOfVectors = len(newDataSet)
@@ -233,16 +251,23 @@ def createCovarianceMatrix(newDataSet):
     covarianceMatrix = np.array(covarianceMatrix)
     return covarianceMatrix*covarianceScalar
 
-def getEigenValuesOfCovariance(matrix):
+def getEigenValuesOfCovariance(matrix,eigenVectors): #2dLists
     #Power Iteration
-    #takes in nxn matrix
+    #takes in nxn matrix and a possibly empty list of eigenVectors
     vectorDimension = len(matrix) #n
-    uVec = numpy.random.rand(vectorDimension)
+    uVec = np.random.rand(vectorDimension)
     for i in range(1,1000): 
-        uVec = matrix*uVec 
-        norm=np.linalg.norm(uVec, ord=1)
+        uVec = np.dot(matrix,uVec)
+        if eigenVectors != []:
+            uVec = projectOut(uVec,eigenVectors)
+        norm=np.linalg.norm(uVec)
         uVec = uVec/norm
     return uVec
+
+def projectOut(vector,eigenVectors):
+    for eigenVector in eigenVectors:
+        vector = vector - np.dot(np.dot(vector,eigenVector),eigenVector)
+    return vector 
 
 ###################################################
 #TestFunctions
@@ -280,7 +305,7 @@ def PCATest():
     testM = np.array(m)
     testN = np.array(n)
     listOfData = [testE,testF,testG,testH,testI,testJ,testK,testL,testM,testN]
-    print(subtractArithmeticMean(listOfData))
+    #print(subtractArithmeticMean(listOfData))
     print(PCAOfVectors(listOfData))
     print("Passed!")
 

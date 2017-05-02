@@ -28,12 +28,14 @@ def init(data):
     data.challengeButtonImage = PhotoImage(file="tkinterimages/AcceptChallengeButton.jpg")
     data.tagButtonImage = PhotoImage(file="tkinterimages/tagYourImages.jpg")
     data.uploadButtonImage = PhotoImage(file="tkinterimages/uploadYourImages.jpg")
+    data.trainMoreImage = PhotoImage(file="tkinterimages/trainMoreData.jpg")
+    data.imageProcessingImage = ImageTk.PhotoImage(file="tkinterimages/LoadingScreen.png")
     data.taggedImages = 0
     data.untaggedImages = 0
     data.readyToGo = False
     data.untaggedImagesList = []
     data.predictionFile = ""
-
+    data.imageProcessing = False
 
 def redrawAll(canvas, data):
     if data.mode == "Introduction":
@@ -116,18 +118,17 @@ def redrawAllUpload(canvas,data):
     borderBottom = 470
     borderRight = 945
     buttonOffsetDown = 150
-    text = """First, write out the first 50 digits of Pi in one image. Make sure that each number is
-            disjoint---They don't touch each other! Also, make sure the individual numbers are entirely 
-            connected, so each part of the number is connected to each other part of that number. 
-            For reference, the first 50 digits of Pi are:
-            3.1415926535897932384626433832795028841971693993751 
+    text = """Write out a large number of numbers, preferable in a mixed order. (For example, the first 50 digits of Pi:
+            3.1415926535897932384626433832795028841971693993751) 
             Upload your photo here:"""
     canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
     canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
     canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
     canvas.create_image(data.width//2,data.height//2+.5*buttonOffsetDown, image=data.uploadButtonImage)
     if data.readyToGo == True:
-            canvas.create_image(data.width//2,data.height//2+buttonOffsetDown, image=data.tagButtonImage)
+        canvas.create_image(data.width//2,data.height//2+buttonOffsetDown, image=data.tagButtonImage)
+    if data.imageProcessing == True:
+        canvas.create_image(data.width//2,data.height//2, image=data.imageProcessingImage)
 
 def redrawAllTag(canvas,data):
     borderTop = 30
@@ -152,11 +153,14 @@ def redrawAllDone(canvas,data):
     resultOffset = 30
     text = "Congrats! You're all done tagging your data! Upload a photo of numbers to convert it to text!"
     resultText = "Your result: " + data.predictionFile
+    moreTrainingText = "Not quite right? Click below to train with more data!"
     canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
     canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
     canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
     if data.predictionFile != "":
         canvas.create_text(data.width//2,data.height//2+resultOffset,anchor=S,text=resultText)
+        canvas.create_text(data.width//2,data.height//2+2*resultOffset, anchor=S,text=moreTrainingText)
+        canvas.create_image(data.width//2,data.height//2+buttonOffsetDown, image=data.trainMoreImage)
     canvas.create_image(data.width//2,data.height//2+.5*buttonOffsetDown, image=data.uploadButtonImage)
 
 
@@ -196,11 +200,16 @@ def mousePressedUpload(event,data):
         if event.x > buttonLeft and event.x < buttonRight:
             if data.readyToGo == True:
                 data.mode = "Tag"
+                data.readyToGo = False
+            #reset in case training additional later
     if event.y > uploadButtonTop and event.y < uploadButtonBottom:
         if event.x > uploadButtonLeft and event.x < uploadButtonRight:
+            data.imageProcessing = True
             openFiles()
             countFilesInUntagged(data)
             loadFilesIntoData(data)
+            data.imageProcessing = False
+
 
 def loadFilesIntoData(data):
     for fileNumber in range(data.untaggedData):
@@ -218,30 +227,78 @@ def countFilesInUntagged(data):
 def mousePressedTag(event,data):
     pass
 
+def transposeFunction(matrix):
+    result = [[0 for row in range(len(matrix))] for col in range(len(matrix[0]))]
+    for inputRow in range(len(matrix)):
+        for inputCol in range(len(matrix[0])):
+            result[inputCol][inputRow] = matrix[inputRow][inputCol]
+    #change list of lists to list of arrays
+    result = [np.array(vector) for vector in result]
+    return result
+
 def predictFile(data):
     predictImage = askopenfilenames()
     assignedData = imagePredict(predictImage[0]) #list of vectors
     predictionFile = []
+    #Compile Training Data into a matrix, transpose, run through PCA, create Basis.
+    #Get image in terms of basis, make prediction
+    trainingDataMatrix = []
+    for instance in trainingVectors.instances:
+        trainingDataMatrix.append(instance.vec)
+    #trainingDataMatrix = transposeFunction(trainingDataMatrix)
+    eigenbasisOfData, arithmeticMean = PCAOfVectors(trainingDataMatrix)
+    #This created the eigenbasis. So the old data has to be projected through again.
+    for instance in trainingVectors.instances:
+        instance.vec = projectionFunction(instance.vec,eigenbasisOfData,arithmeticMean)
+    #then we go through each data vector, project it into the space, and find the closest instance to it
     for imageData in assignedData:
-        distance = 700
-        tag = None
-        for instance in trainingVectors.instances:
-            if distanceFunction(imageData, instance.vec) < distance:
-                distance = distanceFunction(imageData, instance.vec)
-                tag = instance.tag
-        predictionFile.append(tag)
-        print(predictionFile)
+        #Project into eigenbasis of Data
+        projection = projectionFunction(imageData, eigenbasisOfData,arithmeticMean)
+        #make prediction
+        predictedTag = closestNeighbor(projection)
+        predictionFile.append(predictedTag)
     for number in predictionFile:
         data.predictionFile += number
+
+def closestNeighbor(projection):
+    minimum = None
+    for instance in trainingVectors.instances:
+        distance = distanceFunction(projection,instance.vec)
+        if minimum == None:
+            minimum = distance
+            tag = instance.tag 
+        else:
+            if minimum > distance:
+                minimum = distance
+                tag = instance.tag
+    return tag
+
+def projectionFunction(vector,eigenbasis,arithmeticMean):
+    projection = []
+    vector = vector-arithmeticMean
+    for eigenvector in eigenbasis:
+        dotProduct = np.dot(vector, eigenvector)
+        projection.append([dotProduct])
+    return projection
 
 def mousePressedDone(event,data):
     uploadButtonTop = 310
     uploadButtonBottom = 335
     uploadButtonLeft = 405
     uploadButtonRight = 600
+    trainMoreButtonTop = 385
+    trainMoreButtonBottom = 410
+    trainMoreButtonLeft = 400
+    trainMoreButtonRight = 600
     if event.y > uploadButtonTop and event.y < uploadButtonBottom:
         if event.x > uploadButtonLeft and event.x < uploadButtonRight:
             predictFile(data)
+    if data.predictionFile != "":
+        if event.y > trainMoreButtonTop and event.y < trainMoreButtonBottom:
+            if event.x > trainMoreButtonLeft and event.x < trainMoreButtonRight:
+                data.mode = "UploadWhiteboardPhotos"
+                data.taggedImages = 0
+                data.untaggedImages = 0
             
     
 
@@ -265,10 +322,12 @@ def keyPressedTag(event,data):
         trainingVectors(thisVector,event.keysym)
         data.taggedImages += 1
     if data.taggedImages == data.untaggedData:
-        #delete all objects in folder
-        #"delete folder OS Python" - Xinhe
         data.mode = "Done!"
-
+        for file in os.listdir("CharacterData/untaggedData"):
+            os.remove("CharacterData/untaggedData/" + file)
+        #empty folder so that the next time this program is run, you don't get interference
+        #Also, so that the user may submit more data if they want
+    
 def keyPressedDone(event,data):
     pass
 
