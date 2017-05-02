@@ -14,21 +14,31 @@ def distanceFunction(vectorOne,vectorTwo):
     dist = np.linalg.norm(vectorOne-vectorTwo) #stackOverflowDistance
     return dist
 
-def predictCharacter(fragment):
+"""def predictCharacter2(fragment):
     imageToTag, comparisonImages = fragment, predictGetImages()
     vectors = makeVectors(imageToTag,comparisonImages)
     singleVector = flattenVector(vectors)
     array = np.array(singleVector)
-    return array
+    return array"""
 
-def analyzeCharacter(n):
+def predictCharacter(fragment):
+    imageToTag = fragment
+    imageVector = makeVectors2(imageToTag)
+    return imageVector
+
+"""def analyzeCharacter2(n):
     imageToTag, comparisonImages = getImages(n)
     vectors = makeVectors(imageToTag,comparisonImages)
     singleVector = flattenVector(vectors)
     array = np.array(singleVector)
-    return array
+    return array"""
 
-def flattenVector(vectors):
+def analyzeCharacter(n):
+    imageToTag = getImages(n)
+    imageVector = makeVectors2(imageToTag)
+    return imageVector
+
+"""def flattenVector(vectors):
     result = []
     for vector in vectors:
         for entry in vector:
@@ -47,9 +57,22 @@ def makeVectors(imageToTag,comparisonImages):
     vectorLowRight = compareLowRight(imageToTag,comparisonImages)
     return [vectorTopLeft,vectorTopMid,vectorTopRight,
             vectorMidLeft,vectorMidMid,vectorMidRight,
-            vectorLowLeft,vectorLowMid,vectorLowRight]
-    
-def predictGetImages():
+            vectorLowLeft,vectorLowMid,vectorLowRight]"""
+
+def makeVectors2(imageToTag):
+    imageWidth, imageHeight = imageToTag.size
+    imageVector = []
+    for x in range(imageWidth):
+        for y in range(imageHeight):
+            currentPixel = imageToTag.getpixel((x,y))
+            if currentPixel[1] <= 130:
+                imageVector.append(1)
+            else:
+                imageVector.append(0)
+    result = np.array(imageVector)
+    return result
+
+"""def predictGetImages():
     leftHalf = Image.open("VectorImageComparisons/LeftHalf.png")
     middleLineHorizontal = Image.open(
                             "VectorImageComparisons/MiddleLineHorizontal.png")
@@ -59,22 +82,13 @@ def predictGetImages():
     topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
     topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
     return [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal]
+                        topHalf,topLeftDiagonal,topRightDiagonal]"""
 
 def getImages(n):
     imageToTag = Image.open("CharacterData/untaggedData/%d.jpg" % n)
-    leftHalf = Image.open("VectorImageComparisons/LeftHalf.png")
-    middleLineHorizontal = Image.open(
-                            "VectorImageComparisons/MiddleLineHorizontal.png")
-    middleLineVertical = Image.open(
-                            "VectorImageComparisons/MiddleLineVertical.png")
-    topHalf = Image.open("VectorImageComparisons/TopHalf.png")
-    topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
-    topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
-    return imageToTag, [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal]
+    return imageToTag
 
-def compareTopLeft(imageToTag,comparisonImages):
+"""def compareTopLeft(imageToTag,comparisonImages):
     comparisonPixels = 10
     comparisonVector = []
     for comparison in comparisonImages: #comparison is an image
@@ -189,12 +203,7 @@ def compareLowRight(imageToTag,comparisonImages):
                     comparison.getpixel((row,col))):
                     similarityPercent += 1
         comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-#####################################################
-#Basically EigenFaces
-#####################################################
-
+    return comparisonVector"""
 
 #####################################################
 #PCA Implementation
@@ -202,16 +211,20 @@ def compareLowRight(imageToTag,comparisonImages):
 
 def PCAOfVectors(vectorList):
     newDataSet, arithmeticMean = subtractArithmeticMean(vectorList)
+    print("Step One complete!")
     covarianceMatrix = createCovarianceMatrix(newDataSet)
+    print("Step Two complete!")
     eigenVectors = findEigenVectors(covarianceMatrix)
+    print("Step Three Complete!")
     return eigenVectors, arithmeticMean
 
 def findEigenVectors(matrix):
     eigenVectors = []
-    for eigenVector in range(len(matrix)):
+    for eigenVector in range(min(20,len(matrix))):
         eigenVector = getEigenValuesOfCovariance(matrix,eigenVectors)
         eigenVectors.append(eigenVector)
         matrix -= np.dot(np.dot(matrix,eigenVector),eigenVector)
+        print("Found!", eigenVector)
     return eigenVectors
 
 

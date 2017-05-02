@@ -125,8 +125,8 @@ def createNewCharacterImages(imageData):
                 y = y-imageDimensions[imageIndex][3] + centerAmount
             fragment.putpixel((x,y),(115,109,198))
             #fragment.show()
-        finalWidth = 30
-        finalHeight = 30
+        finalWidth = 32
+        finalHeight = 32
         fragment = fragment.resize((finalWidth, finalHeight), Image.BICUBIC)
         newImages.append(fragment)
         #fragment.show()

@@ -89,7 +89,8 @@ def redrawAllIntro(canvas,data):
     buttonOffsetDown = 200
     buttonOffsetRight = 20
     canvas.create_image(data.width//2,data.height//2, image=data.introImage)
-    canvas.create_image(data.width//2+buttonOffsetRight,data.height//2+buttonOffsetDown, image=data.introButtonImage)
+    canvas.create_image(data.width//2+buttonOffsetRight,
+            data.height//2+buttonOffsetDown, image=data.introButtonImage)
 
 def redrawAllDirection(canvas,data):
     borderTop = 30
@@ -101,15 +102,15 @@ def redrawAllDirection(canvas,data):
             Digit and character recognition are hard problems. This project 
             streamlines the process of creating a module that allows you to turn your whiteboard handwriting into 
             a textfile using an automated process. The task left to you is to write out some data and tag it! 
-            I have created the backend infrastructure that will process your images and data, to cut 
-            the conceptually difficult parts out of the process. In fact, you could probably pay your eleven year-
+            I have created the structures that will process your images and data. This cuts 
+            the conceptually difficult parts out of the process! In fact, you could probably pay your eleven year-
             old cousin to do it for you.
 
             Disclaimer: Gathering and tagging data is still a long process, and will require you to write hundreds of
-            sentences on a whiteboard. Also, CalliGraphics does not condone child labor."""
+            numbers on a whiteboard. Also, CalliGraphics does not condone child labor."""
     canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
     canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
-    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
+    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text, font="Times 12")
     canvas.create_image(data.width//2,data.height//2+buttonOffsetDown, image=data.challengeButtonImage)
 
 def redrawAllUpload(canvas,data):
@@ -118,12 +119,13 @@ def redrawAllUpload(canvas,data):
     borderBottom = 470
     borderRight = 945
     buttonOffsetDown = 150
-    text = """Write out a large number of numbers, preferable in a mixed order. (For example, the first 50 digits of Pi:
+    text = """Write out a large number of numbers, preferable in a mixed order. 
+            (For example, the first 50 digits of Pi:
             3.1415926535897932384626433832795028841971693993751) 
             Upload your photo here:"""
     canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
     canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
-    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
+    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text, font="Times 12")
     canvas.create_image(data.width//2,data.height//2+.5*buttonOffsetDown, image=data.uploadButtonImage)
     if data.readyToGo == True:
         canvas.create_image(data.width//2,data.height//2+buttonOffsetDown, image=data.tagButtonImage)
@@ -142,7 +144,7 @@ def redrawAllTag(canvas,data):
     canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
     currentCharacter = data.untaggedImagesList[data.taggedImages] #data.taggedImages is an int
     canvas.create_image(data.width//2,data.height//2-characterOffsetUp, image=currentCharacter)
-    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
+    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text, font="Times 12")
 
 def redrawAllDone(canvas,data):
     borderTop = 30
@@ -156,10 +158,10 @@ def redrawAllDone(canvas,data):
     moreTrainingText = "Not quite right? Click below to train with more data!"
     canvas.create_image(data.width//2,data.height//2, image=data.borderImage)
     canvas.create_rectangle(borderLeft,borderTop,borderRight,borderBottom, fill="white", width=0)
-    canvas.create_text(data.width//2,data.height//2,anchor=S,text=text)
+    canvas.create_text(data.width//2,data.height//2-resultOffset,anchor=S,text=text, font="Times 12")
     if data.predictionFile != "":
-        canvas.create_text(data.width//2,data.height//2+resultOffset,anchor=S,text=resultText)
-        canvas.create_text(data.width//2,data.height//2+2*resultOffset, anchor=S,text=moreTrainingText)
+        canvas.create_text(data.width//2,data.height//2,anchor=S,text=resultText, font="Times 12")
+        canvas.create_text(data.width//2,data.height//2+resultOffset, anchor=S,text=moreTrainingText, font="Times 12")
         canvas.create_image(data.width//2,data.height//2+buttonOffsetDown, image=data.trainMoreImage)
     canvas.create_image(data.width//2,data.height//2+.5*buttonOffsetDown, image=data.uploadButtonImage)
 
