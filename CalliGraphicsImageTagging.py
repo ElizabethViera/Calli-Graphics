@@ -14,50 +14,15 @@ def distanceFunction(vectorOne,vectorTwo):
     dist = np.linalg.norm(vectorOne-vectorTwo) #stackOverflowDistance
     return dist
 
-"""def predictCharacter2(fragment):
-    imageToTag, comparisonImages = fragment, predictGetImages()
-    vectors = makeVectors(imageToTag,comparisonImages)
-    singleVector = flattenVector(vectors)
-    array = np.array(singleVector)
-    return array"""
-
 def predictCharacter(fragment):
     imageToTag = fragment
     imageVector = makeVectors2(imageToTag)
     return imageVector
 
-"""def analyzeCharacter2(n):
-    imageToTag, comparisonImages = getImages(n)
-    vectors = makeVectors(imageToTag,comparisonImages)
-    singleVector = flattenVector(vectors)
-    array = np.array(singleVector)
-    return array"""
-
 def analyzeCharacter(n):
     imageToTag = getImages(n)
     imageVector = makeVectors2(imageToTag)
     return imageVector
-
-"""def flattenVector(vectors):
-    result = []
-    for vector in vectors:
-        for entry in vector:
-            result.append(entry)
-    return result
-
-def makeVectors(imageToTag,comparisonImages):
-    vectorTopLeft = compareTopLeft(imageToTag,comparisonImages)
-    vectorTopMid = compareTopMid(imageToTag,comparisonImages)
-    vectorTopRight = compareTopRight(imageToTag,comparisonImages)
-    vectorMidLeft = compareMidLeft(imageToTag,comparisonImages)
-    vectorMidMid = compareMidMid(imageToTag,comparisonImages)
-    vectorMidRight = compareMidRight(imageToTag,comparisonImages)
-    vectorLowLeft = compareLowLeft(imageToTag,comparisonImages)
-    vectorLowMid = compareLowMid(imageToTag,comparisonImages)
-    vectorLowRight = compareLowRight(imageToTag,comparisonImages)
-    return [vectorTopLeft,vectorTopMid,vectorTopRight,
-            vectorMidLeft,vectorMidMid,vectorMidRight,
-            vectorLowLeft,vectorLowMid,vectorLowRight]"""
 
 def makeVectors2(imageToTag):
     imageWidth, imageHeight = imageToTag.size
@@ -72,138 +37,9 @@ def makeVectors2(imageToTag):
     result = np.array(imageVector)
     return result
 
-"""def predictGetImages():
-    leftHalf = Image.open("VectorImageComparisons/LeftHalf.png")
-    middleLineHorizontal = Image.open(
-                            "VectorImageComparisons/MiddleLineHorizontal.png")
-    middleLineVertical = Image.open(
-                            "VectorImageComparisons/MiddleLineVertical.png")
-    topHalf = Image.open("VectorImageComparisons/TopHalf.png")
-    topLeftDiagonal = Image.open("VectorImageComparisons/TopLeftDiagonal.png")
-    topRightDiagonal = Image.open("VectorImageComparisons/TopRightDiagonal.png")
-    return [leftHalf,middleLineHorizontal,middleLineVertical,
-                        topHalf,topLeftDiagonal,topRightDiagonal]"""
-
 def getImages(n):
     imageToTag = Image.open("CharacterData/untaggedData/%d.jpg" % n)
     return imageToTag
-
-"""def compareTopLeft(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row,col)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareTopMid(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row,col+10)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareTopRight(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row,col+20)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareMidLeft(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row+10,col)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareMidMid(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row+10,col+10)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareMidRight(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row+10,col+20)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareLowLeft(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row+20,col)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareLowMid(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row+20,col+10)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector
-
-def compareLowRight(imageToTag,comparisonImages):
-    comparisonPixels = 10
-    comparisonVector = []
-    for comparison in comparisonImages: #comparison is an image
-        similarityPercent = 0
-        for row in range(comparisonPixels): #number of pixels in comparison
-            for col in range(comparisonPixels):
-                if (imageToTag.getpixel((row+20,col+20)) == 
-                    comparison.getpixel((row,col))):
-                    similarityPercent += 1
-        comparisonVector.append(similarityPercent)
-    return comparisonVector"""
 
 #####################################################
 #PCA Implementation
@@ -211,12 +47,37 @@ def compareLowRight(imageToTag,comparisonImages):
 
 def PCAOfVectors(vectorList):
     newDataSet, arithmeticMean = subtractArithmeticMean(vectorList)
-    print("Step One complete!")
     covarianceMatrix = createCovarianceMatrix(newDataSet)
-    print("Step Two complete!")
     eigenVectors = findEigenVectors(covarianceMatrix)
-    print("Step Three Complete!")
+    eigenVectorCompilation = showEigenVectors(eigenVectors)
     return eigenVectors, arithmeticMean
+
+def showEigenVectors(eigenVectors):
+    eigenVectorCompilation = []
+    lengthOfRow = 32
+    for eigenVector in eigenVectors:
+        createdFeature = Image.new('RGB', (32, 32), 
+                             color=(255,255,255))
+        for row in range(32):
+            for col in range(32):
+                shade = getColor(eigenVector[row*lengthOfRow+col])
+                createdFeature.putpixel((row,col),shade)
+        eigenVectorCompilation.append(createdFeature)
+    #eigenVectorCompilation[0].show()
+    #eigenVectorCompilation[1].show()
+    #eigenVectorCompilation[2].show()
+    #eigenVectorCompilation[3].show()
+    #eigenVectorCompilation[4].show()
+    return eigenVectorCompilation
+
+def getColor(n):
+    #n might be negative
+    if n < 0 : n *= -1
+    if n > 1: n = n%1
+    shade1 = int(n*255)
+    shade2 = (int(n*255)+50)%255
+    shade3 = (int(n*255)+100)%255
+    return (shade1,shade2,shade3)
 
 def findEigenVectors(matrix):
     eigenVectors = []
@@ -224,7 +85,6 @@ def findEigenVectors(matrix):
         eigenVector = getEigenValuesOfCovariance(matrix,eigenVectors)
         eigenVectors.append(eigenVector)
         matrix -= np.dot(np.dot(matrix,eigenVector),eigenVector)
-        print("Found!", eigenVector)
     return eigenVectors
 
 
@@ -255,10 +115,13 @@ def createCovarianceMatrix(newDataSet):
         covarianceScalar = 0
     vectorLength = newDataSet[0].size
     covarianceMatrix = [[0 for col in range(vectorLength)] for row in range(vectorLength)]
-    for row in range(len(covarianceMatrix)):
-        for col in range(len(covarianceMatrix[0])):
+    rows = range(len(covarianceMatrix))
+    cols = range(len(covarianceMatrix[0]))
+    vectors = range(numberOfVectors)
+    for row in rows:
+        for col in cols:
             totalSum = 0
-            for i in range(numberOfVectors):
+            for i in vectors:
                 totalSum += newDataSet[i][row]*newDataSet[i][col]
             covarianceMatrix[row][col] = totalSum/numberOfVectors
     covarianceMatrix = np.array(covarianceMatrix)

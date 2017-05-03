@@ -229,15 +229,6 @@ def countFilesInUntagged(data):
 def mousePressedTag(event,data):
     pass
 
-def transposeFunction(matrix):
-    result = [[0 for row in range(len(matrix))] for col in range(len(matrix[0]))]
-    for inputRow in range(len(matrix)):
-        for inputCol in range(len(matrix[0])):
-            result[inputCol][inputRow] = matrix[inputRow][inputCol]
-    #change list of lists to list of arrays
-    result = [np.array(vector) for vector in result]
-    return result
-
 def predictFile(data):
     predictImage = askopenfilenames()
     assignedData = imagePredict(predictImage[0]) #list of vectors
@@ -246,12 +237,12 @@ def predictFile(data):
     #Get image in terms of basis, make prediction
     trainingDataMatrix = []
     for instance in trainingVectors.instances:
-        trainingDataMatrix.append(instance.vec)
-    #trainingDataMatrix = transposeFunction(trainingDataMatrix)
+        newVector = np.array(instance.vec)
+        trainingDataMatrix.append(newVector)
     eigenbasisOfData, arithmeticMean = PCAOfVectors(trainingDataMatrix)
     #This created the eigenbasis. So the old data has to be projected through again.
     for instance in trainingVectors.instances:
-        instance.vec = projectionFunction(instance.vec,eigenbasisOfData,arithmeticMean)
+        instance.pvec = np.array(projectionFunction(instance.vec,eigenbasisOfData,arithmeticMean))
     #then we go through each data vector, project it into the space, and find the closest instance to it
     for imageData in assignedData:
         #Project into eigenbasis of Data
@@ -265,7 +256,7 @@ def predictFile(data):
 def closestNeighbor(projection):
     minimum = None
     for instance in trainingVectors.instances:
-        distance = distanceFunction(projection,instance.vec)
+        distance = distanceFunction(projection,instance.pvec)
         if minimum == None:
             minimum = distance
             tag = instance.tag 
