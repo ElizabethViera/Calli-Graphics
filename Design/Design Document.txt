@@ -1,0 +1,45 @@
+About the Design of this Term Project:
+
+Originally, my project proposal was as follows:
+Problem and Project Description:
+    Training neural nets requires a heavy amount of backend setup, hours of tagging data, and writing on a whiteboard. My term project will streamline this process, allowing users to photograph their own writing on whiteboards and providing an interface for them to tag each character (partitioning the images) to build their own neural net. This will result in a downloadable file which they can upload with a photo of their handwriting to output in a text (or TeX, if time permits) file. 
+
+Procedure:
+    The program will ask the user to accumulate a zip file containing images (in order) of text they have written on whiteboards. The program will then separate each image into a batch of characters, displaying those characters to the user. They will ask them to select each character from the image. The program will run feature detection on the character, and then retain the vector data and the image in a file of other vectors/images of the same character. After tagging all characters from all images, the user will be given a trained neural net, based off of their data. They will be able to upload this and a new picture of something they wrote and the program will predict what they wrote, in text file.
+
+Modules required:
+    Python Imaging Library (PILLOW) (image processing)
+    TKinter (front end)
+    Numpy (math)
+    Adobe Illustrator (Graphics)
+
+Competitive Analysis:
+    MNist: This is a comprehensive digit recognizer. It takes in grayscale images and outputs numerical data. 
+           Pros: Works really accurately. Cons: Have to convert all images to grayscale. Only works on numbers.
+    DeTexify: This allows you to draw characters in a box, and it predicts which character you drew, and gives
+              the LaTeX code for that symbol (example: '\epsilon' will create a lowercase epsilon)
+              Pros: Fancy algorithms, lots of training data. Cons: A single letter at a time. 
+
+The design of this largely followed this inital goal, though handwriting for general characters will have to be implemented at a later time. This project works on numbers with fairly good accuracy, and is more math-heavy than initially anticipated. An overview of the three documents is as follows:
+
+User Interface: This contains the run function for tkinter. The user primarily uses this, moving between a few modes. These modes include the initial page, containing the logo, a mode which gives a brief overview of the project, one for uploading training data, one for tagging training data, and one for asking the program to run predictive algorithms. The upload/tagging/prediction modes call functions in the other two documents.
+
+Image Detection: This contains the mode for parsing the images given in the two places to upload photos. For both of these, this does a high-pass filter on the entire image. Because these digits are written on whiteboards, the locally brightest thing is the whiteboard. (Since characters typically aren't written as solid objects.) It makes that pixel the same color as the brightest pixel in the area, which essentially creates the effect of erasing the whiteboard. It then subtracts the two images, and highlights areas that are particularly different. Next, this does a floodfill on each character, hence the requirement that images be connected and discrete. It compiles a list of character coordinates, and then finds a bounding box, copying the individual characters into 32x32 images, centered and uniformly sized. These were made purple to fit the color scheme or the program. For training data, this pushes these to a file (untagged data) to receive tags. In the predictive case, this calls the image tagging file to assign vectors to these images, in order to run them through PCA. The mechanics of this will be explained more thoroughly in the next section.
+
+Image Tagging: Image Tagging has two main functions: One which assigns a vector to the image, and one which executes PCA. Assigning a vector is conceptually easiest, so I shall explain that first. 
+
+In the 32x32 grid, each pixel is either white or not. Unfortunately, resizing actually distorts the colors slightly, so instead of saying "Is this pixel exactly white or purple?" it actually uses a threshold to determine whether it is closer to white or purple. If closer to white, it tags that cell as a 0, else 1. The entire character is classified in this way, producing a vector of length 1024 made of zeros and ones. (This is partially why it is slow, but this is necessary for accuracy.)
+With these vectors assigned to the training data, we can use PCA. 
+
+PCA was implemented by me, using only numpy and linear algebra. It begins by finding the arithmetic mean of the set of data, a vector of length 1024 where each element corresponds to the average of all of vectors in the training data at that index. It subtracts this from each vector, producing a data set whose average is zero. Then, my program finds the covariance matrix of this data set. 
+
+You can read about covariance matrices here: https://en.wikipedia.org/wiki/Covariance_matrix
+
+For entry (m,n) in the covariance matrix, the entry is the sum of the vectors' values at m and n, all divided by the number of vectors. This gives the algorithm an idea of how various components relate to each other in the individual digits. 
+
+From the covariance matrix, we find the largest twenty eigenvalues/eigenvectors of the space. Because the matrix is symmetric, we can use this method:
+
+Take a random vector. Project out previously found eigenvectors, using the equation (u(dotproduct)v)*v. (Since these are unit vectors, this is a simpler equation than it would otherwise be.) Dot product that random vector by the covariance matrix a thousand times. The asymptotic behavior of this random vector will tend towards the largest remaining eigenvector, so long as that at each step the previous eigenvectors are projected out and it is renormalized. You do this entire process twenty times, and you have the twenty most salient features of your handwriting. This then compares the new vectors from the prediction characters with the tags of the nearest training items and assigns the new ones a tag. 
+
+Eventually, I would like this to give the writing and digits in LaTeX to the user, but for now they display as a string. (It gets order if asked to predict one line of writing at a time, else it moves from left to right along the image.) 
+
